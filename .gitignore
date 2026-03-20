@@ -1,0 +1,85 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+HospitalApp
+
+# IDE - Visual Studio
+.vs/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa]rm/
+[Aa]rm64/
+*.pdb
+*.ilk
+*.aps
+*.idb
+*.intermediate.manifest
+*.pch
+*.res
+*.tlog
+*.lastbuildstate
+*.unsuccessfulbuild
+*.user
+*.ncb
+*.suo
+*.sln
+*.vcxproj
+*.filters
+*.vcxitems
+*.vcxitems.filters
+*.sdf
+*.opensdf
+*.db
+*.opendb
+*.vsidx
+*.suo
+*.tmp
+*.temp
+
+# IDE - VS Code
+.vscode/
+
+# Build Systems
+build/
+out/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Project Specific
+data/*.csv
+data/*.log
+data/*.txt
+!data/.keep
