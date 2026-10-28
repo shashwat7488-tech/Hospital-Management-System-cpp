@@ -280,7 +280,7 @@ If you don't see the Play button:
 ---
 
 ## 👨‍💻 Author
-This repository originated from [Kianis534/Hospital-Management-System-cpp](https://github.com/Kianis534/Hospital-Management-System-cpp). Preserve this attribution and describe local work as adaptation, verification, documentation, and targeted fixes rather than independent authorship of inherited code.
+This repository originated from shashwat,pratham,akansha 3rd sem oops projects.
 
 ## 📄 License and distribution
 
@@ -290,9 +290,7 @@ No `LICENSE` file is present in this checkout. Before publishing, redistributing
 
 The submission package includes:
 
-- [Project report (editable DOCX)](submission/Hospital_Management_System_Report.docx)
-- [Project report (print-ready PDF)](submission/Hospital_Management_System_Report.pdf)
-- [Four-slide presentation](submission/Hospital_Management_System_Presentation.pptx)
+
 - [Test checklist, presentation notes, and viva preparation](SUBMISSION_MATERIALS.md)
 
 Local CSV, log, and password files under `data/` are intentionally ignored by Git. Use fictional data only and do not commit credentials or real patient information.
