@@ -3,6 +3,7 @@
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
+#include <sstream>
 
 using namespace std;
 
@@ -18,8 +19,9 @@ void BillingService::printInvoice(int patientID, const string& name, double tota
     UI::showData("Patient ID", to_string(patientID));
     UI::showData("Patient Name", name);
     UI::printLine(30);
-    cout << fixed << setprecision(2);
-    UI::showData("TOTAL DUE", "$" + to_string(totalAmount));
+    ostringstream formattedTotal;
+    formattedTotal << fixed << setprecision(2) << totalAmount;
+    UI::showData("TOTAL DUE", "$" + formattedTotal.str());
     UI::printLine(30);
     UI::showStatus("success", "Payment processed via HMS Secure Pay.");
 }

@@ -6,6 +6,7 @@
 #include <thread>
 #include <chrono>
 #include <algorithm>
+#include <cctype>
 
 using namespace std;
 
@@ -45,6 +46,23 @@ namespace Utility {
     inline string sanitize(string str) {
         replace(str.begin(), str.end(), ',', ' ');
         return str;
+    }
+
+    inline string trim(string str) {
+        const auto first = find_if_not(str.begin(), str.end(), [](unsigned char c) { return isspace(c); });
+        const auto last = find_if_not(str.rbegin(), str.rend(), [](unsigned char c) { return isspace(c); }).base();
+        return first < last ? string(first, last) : string();
+    }
+
+    inline string getRequiredLine(const string& prompt) {
+        string value;
+        do {
+            cout << prompt;
+            getline(cin, value);
+            value = trim(value);
+            if (value.empty()) cout << "This field cannot be empty. Please try again.\n";
+        } while (value.empty());
+        return value;
     }
 
     /**

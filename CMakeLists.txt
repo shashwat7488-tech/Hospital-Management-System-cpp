@@ -9,11 +9,3 @@ include_directories(include)
 file(GLOB_RECURSE SRC_FILES "src/*.cpp")
 
 add_executable(HospitalApp ${SRC_FILES})
-
-# Professional fix for paths with spaces and '&' symbols
-# Instead of forcing the directory (which breaks shell commands), 
-# we use a POST_BUILD copy command which is much more robust.
-add_custom_command(TARGET HospitalApp POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:HospitalApp> "${CMAKE_SOURCE_DIR}/HospitalApp.exe"
-    COMMENT "Copying executable to project root..."
-)

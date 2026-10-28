@@ -36,7 +36,7 @@ public:
     void cancelAppointment(int patientID);
     void searchAppointment(int patientID) const;
     void displayAllAppointments() const;
-    void checkUpAppointment();
+    shared_ptr<Patient> checkUpAppointment();
 
     void admitPatient(shared_ptr<Patient> patient);
     void displayAdmittedPatients() const;

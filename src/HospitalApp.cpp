@@ -48,8 +48,7 @@ void HospitalApp::changePassword() {
     cout << "  Current Password: ";
     getline(cin, oldPass);
     if (oldPass == currentPassword) {
-        cout << "  New Password    : ";
-        getline(cin, newPass);
+        newPass = Utility::getRequiredLine("  New Password    : ");
         currentPassword = newPass;
         savePassword();
         UI::showStatus("success", "Password updated successfully.");
@@ -105,7 +104,11 @@ void HospitalApp::run() {
                 UI::showLogo();
                 UI::showHeader("SYSTEM HISTORY");
                 cout << "  [1] Back  [2] Next\n\n  Navigate: ";
-                if(Utility::getSafeInt("") == 1) history.undoView(); else history.redoView();
+                const int historyChoice = Utility::getSafeInt("");
+                if (historyChoice == 1) history.undoView();
+                else if (historyChoice == 2) history.redoView();
+                else UI::showStatus("error", "Please choose 1 or 2.");
+                history.displayCurrent();
                 cout << "\n  Press Enter to return..."; 
                 string d; getline(cin, d);
                 break;
@@ -132,13 +135,14 @@ void HospitalApp::doctorMenu() {
         }
         else if (choice == 2) { 
             Utility::clearScreen(); UI::showLogo(); UI::showHeader("CHECK-UP"); 
-            priorityQueue.checkUpAppointment(); 
+            if (auto patient = priorityQueue.checkUpAppointment()) history.addRecord(patient);
         }
         else if (choice == 3) { 
             Utility::clearScreen(); UI::showLogo(); UI::showHeader("PATIENT HISTORY"); 
             priorityQueue.displayOldPatients(); 
         }
         else if (choice == 0) { inLoop = false; continue; }
+        else { UI::showStatus("error", "Unknown command."); Utility::sleep(500); continue; }
         
         if (choice != 0) {
             cout << endl;
@@ -163,6 +167,7 @@ void HospitalApp::nurseMenu() {
             priorityQueue.modifyAdmittedPatient(Utility::getSafeInt("  Patient ID: ")); 
         }
         else if (choice == 0) { inLoop = false; continue; }
+        else { UI::showStatus("error", "Unknown command."); Utility::sleep(500); continue; }
         
         if (choice != 0) {
             cout << endl;
@@ -188,11 +193,12 @@ void HospitalApp::patientMenu() {
         }
         else if (choice == 3) { 
             Utility::clearScreen(); UI::showLogo(); UI::showHeader("FEEDBACK");
-            cout << "  Describe your complaint: "; string c; getline(cin, c);
+            string c = Utility::getRequiredLine("  Describe your complaint: ");
             priorityQueue.registerComplaint(c);
             UI::showStatus("success", "Feedback submitted.");
         }
         else if (choice == 0) { inLoop = false; continue; }
+        else { UI::showStatus("error", "Unknown command."); Utility::sleep(500); continue; }
         
         if (choice != 0) {
             cout << endl;
@@ -221,6 +227,7 @@ void HospitalApp::emergencyMenu() {
             emergency.leaveEmergency(Utility::getSafeInt("  ID: ")); 
         }
         else if (choice == 0) { inLoop = false; continue; }
+        else { UI::showStatus("error", "Unknown command."); Utility::sleep(500); continue; }
         
         if (choice != 0) {
             cout << endl;
@@ -254,6 +261,7 @@ void HospitalApp::adminMenu() {
         }
         else if (choice == 5) { changePassword(); }
         else if (choice == 0) { inLoop = false; continue; }
+        else { UI::showStatus("error", "Unknown command."); Utility::sleep(500); continue; }
         
         if (choice != 0) {
             cout << endl;

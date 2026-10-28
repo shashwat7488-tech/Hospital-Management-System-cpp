@@ -37,6 +37,7 @@ shared_ptr<Patient> PriorityQueue::parsePatient(const string& line) const {
         getline(ss, p->diagnosis, ',');
         getline(ss, p->notesForPatient, ',');
         getline(ss, item, ','); p->admitted = (item == "1");
+        if (p->id <= 0 || Utility::trim(p->name).empty()) return nullptr;
     } catch (...) { return nullptr; }
     return p;
 }
@@ -108,10 +109,18 @@ void PriorityQueue::heapifyDown(int index) {
 
 void PriorityQueue::bookAppointment() {
     auto patient = make_shared<Patient>();
-    patient->id = Utility::getSafeInt("Enter Patient ID: ");
-    cout << "Enter Name: "; getline(cin, patient->name);
-    cout << "Enter Contact: "; getline(cin, patient->contact);
-    cout << "Enter Doctor: "; getline(cin, patient->doctorName);
+    do {
+        patient->id = Utility::getSafeInt("Enter Patient ID: ");
+        if (patient->id <= 0) cout << "Patient ID must be a positive number.\n";
+    } while (patient->id <= 0);
+    if (any_of(heap.begin(), heap.end(), [&](const shared_ptr<Patient>& p) { return p->id == patient->id; }) ||
+        admittedPatientsMap.find(patient->id) != admittedPatientsMap.end()) {
+        cout << "A patient with this ID already has an active record.\n";
+        return;
+    }
+    patient->name = Utility::getRequiredLine("Enter Name: ");
+    patient->contact = Utility::getRequiredLine("Enter Contact: ");
+    patient->doctorName = Utility::getRequiredLine("Enter Doctor: ");
     patient->priority = Utility::getYesNo("High Priority?") ? INT_MAX : 0;
     heap.push_back(patient);
     heapifyUp(static_cast<int>(heap.size()) - 1);
@@ -139,18 +148,19 @@ void PriorityQueue::displayAllAppointments() const {
     for (const auto& p : heap) cout << "ID: " << p->id << " | Name: " << p->name << " | Priority: " << (p->priority > 0 ? "High" : "Normal") << "\n";
 }
 
-void PriorityQueue::checkUpAppointment() {
-    if (heap.empty()) { cout << "No patients waiting.\n"; return; }
+shared_ptr<Patient> PriorityQueue::checkUpAppointment() {
+    if (heap.empty()) { cout << "No patients waiting.\n"; return nullptr; }
     auto p = heap.front();
     cout << "--- Check-up: " << p->name << " ---\n";
-    cout << "Diagnosis: "; getline(cin, p->diagnosis);
-    cout << "Medicine: "; getline(cin, p->medicine);
+    p->diagnosis = Utility::getRequiredLine("Diagnosis: ");
+    p->medicine = Utility::getRequiredLine("Medicine: ");
     double bill = BillingService::calculateBill(p->medicine, "Checkup/Consultation", 1);
     BillingService::printInvoice(p->id, p->name, bill);
     if (p->admitted = Utility::getYesNo("Admit Patient for further treatment?"); p->admitted) admitPatient(p);
     else oldPatientsStack.push(p);
     heap[0] = heap.back(); heap.pop_back();
     if (!heap.empty()) heapifyDown(0);
+    return p;
 }
 
 void PriorityQueue::admitPatient(shared_ptr<Patient> patient) {
@@ -170,8 +180,8 @@ void PriorityQueue::searchAdmittedPatient(int patientID) const {
 
 void PriorityQueue::modifyAdmittedPatient(int patientID) {
     if (auto it = admittedPatientsMap.find(patientID); it != admittedPatientsMap.end()) {
-        cout << "Updating " << it->second->name << "\nNotes: ";
-        getline(cin, it->second->notesForPatient);
+        cout << "Updating " << it->second->name << "\n";
+        it->second->notesForPatient = Utility::getRequiredLine("Notes: ");
     } else cout << "Not found.\n";
 }
 

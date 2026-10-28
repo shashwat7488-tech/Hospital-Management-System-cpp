@@ -73,6 +73,7 @@ x86/
 # Build Systems
 build/
 out/
+.presentation-build/
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake

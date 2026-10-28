@@ -4,11 +4,11 @@
 ![Build System](https://img.shields.io/badge/Build-CMake-green.svg)
 
 ## 📝 Short Description
-This is a persistent Hospital Management System built entirely in C++17. Originally developed as a **University 3rd Semester Project**, it has been extensively refactored to demonstrate professional software engineering standards and advanced Data Structures and Algorithms (DSA). 
+This is a C++17 Hospital Management System for demonstrating OOP and Data Structures and Algorithms (DSA) in a college project. It stores selected records locally in CSV files for a normal application restart.
 
-### 🔐 Default Credentials
+### 🔐 Demo credentials
 - **Password:** `admin123`
-*(You can change this password inside the application via the "Change Password" menu option).*
+*(Available only when no local `data/password.txt` has replaced it. This is a demo-only plain-text password, not production authentication.)*
 
 ---
 
@@ -26,11 +26,11 @@ This is a persistent Hospital Management System built entirely in C++17. Origina
 - **Priority Appointments:** Schedule patients using a Binary Max-Heap.
 - **Instant Patient Lookup:** Retrieve admitted patient data in constant time.
 - **Hospital Navigator:** Find the shortest path between departments using Graph theory.
-- **Smart Search Engine:** Fast, prefix-based autocomplete for departments and staff.
+- **Smart Search Engine:** Prefix-based autocomplete for the predefined departments and doctor names.
 - **Shift Rotator:** Manage Doctor on-call schedules using a Circular Linked List.
-- **Record History:** Navigate through recently viewed records using a Doubly Linked List.
+- **Record History:** Navigate completed check-ups during the current application session using a Doubly Linked List.
 - **Emergency Management:** Persistent stack-based tracking for urgent cases.
-- **Automatic Persistence:** All data is automatically saved to and loaded from CSV files.
+- **Local Persistence:** Appointments, admitted patients, staff records, feedback, and emergency records are saved to CSV files when the application closes and loaded on the next launch.
 - **System Logger:** Thread-safe logging of all major system events.
 
 ---
@@ -121,10 +121,10 @@ flowchart TD
         Feedback -.-> CSV_Complaints[(data/complaints.csv)]
     end
 
-    %% ER Unit (Double Stack)
+    %% ER Unit (Two Stacks)
     subgraph ER_STACK [Emergency Unit - Stack]
         ERPortal --> ER_Ops[Register Case / Triage / Discharge]
-        ER_Ops -.-> CSV_ER[(data/emergency_state.csv)]
+        ER_Ops -.-> CSV_ER[(data/emergency_current.csv / emergency_old.csv)]
     end
 
     %% Admin Hub (Circular Linked List)
@@ -145,8 +145,8 @@ flowchart TD
         TrieSearch --> AutoComp[Show Match Results]
     end
 
-    %% History (Double Stack)
-    subgraph HIST_STACK [History - Undo/Redo Stacks]
+    %% History (Doubly Linked List)
+    subgraph HIST_LIST [History - Doubly Linked List]
         ViewHist --> Undo[PatientHistory::undoView]
         ViewHist --> Redo[PatientHistory::redoView]
     end
@@ -183,7 +183,7 @@ flowchart TD
 ---
 
 ## 💾 Data Persistence & File Handling
-This system ensures that all data is persistent across sessions using structured CSV (Comma-Separated Values) files and thread-safe logging.
+Selected system data persists across normal application restarts using CSV (Comma-Separated Values) files and thread-safe logging.
 
 ### 📁 Database Structure
 The application maintains several flat-file databases in the `data/` directory:
@@ -191,11 +191,12 @@ The application maintains several flat-file databases in the `data/` directory:
 - **`admitted.csv`**: Tracks currently admitted patients and their assigned wards.
 - **`appointments.csv`**: Manages the priority-based appointment queue.
 - **`complaints.csv`**: Stores patient feedback for administrative review.
-- **`password.txt`**: Securely stores the administrative access key.
+- **`emergency_current.csv`** and **`emergency_old.csv`**: Store active and discharged emergency cases.
+- **`password.txt`**: Stores the demo administrator password in plain text.
 
 ### ⚙️ File Handling Logic
-- **Startup Loading:** Upon execution, the `HospitalApp` constructor triggers loading sequences that populate internal Data Structures (AVL Trees, Hash Maps, Tries) from their respective CSV files.
-- **Atomic Updates:** To prevent data loss, the system performs a full sync during specific operations and always during a clean shutdown.
+- **Startup Loading:** On launch, staff, appointments, admissions, complaints, and emergency records load into their respective in-memory structures when their local files exist.
+- **Session Sync:** Each managed data structure writes its current state when the application closes normally.
 - **CSV Parsing:** Uses `std::stringstream` and `std::getline` with custom delimiters to safely parse and tokenize record fields, handling edge cases like empty lines or corrupted data.
 - **Robustness:** Includes `Utility::safeStoi` and sanitization checks to ensure that manual edits to the CSV files do not crash the application.
 - **Thread-Safe Logging:** Implements a Singleton `Logger` class that uses a `std::mutex` to safely record all system events to a log file, even in multi-threaded environments.
@@ -204,7 +205,7 @@ The application maintains several flat-file databases in the `data/` directory:
 
 ## 📂 Project Structure
 ```text
-D:\DSA Final Project\
+Hospital-Management-System-cpp/
 ├───data\               # Persistent CSV storage and password files
 ├───include\            # Header files (.h) - Class and Method declarations
 │   ├───BillingService.h
@@ -250,17 +251,24 @@ D:\DSA Final Project\
 
 ### Option 2: Using CMake Command Line
 ```bash
-# 1. Create a build folder
-mkdir build
-cd build
+# 1. Generate the build files
+cmake -S . -B build
 
-# 2. Generate and build
-cmake ..
-cmake --build .
+# 2. Build
+cmake --build build
 
-# 3. Run the app (Executable will be in project root)
-../HospitalApp
+# 3. Run (macOS/Linux)
+./build/HospitalApp
+
+# On Windows, use: .\build\HospitalApp.exe
 ```
+
+### Quick demonstration path (macOS)
+
+1. Run `./build/HospitalApp`, then choose `1` at the secure gateway and enter the demo password above if no local password file exists.
+2. From the dashboard: `5` opens staff administration, `3` opens appointments and feedback, `2` opens admitted-patient notes, and `4` opens emergency cases.
+3. Use `6` for the shortest-route demonstration, `7` for prefix search, `8` for the current-session viewing history, and `9` to change the demo password.
+4. Use fictional data only. Exit through `0` so the application performs its normal local-data save.
 
 ### 🔧 Troubleshooting the "Play Button" in VS (Rare)
 If you don't see the Play button:
@@ -272,6 +280,19 @@ If you don't see the Play button:
 ---
 
 ## 👨‍💻 Author
-This project was originally my 3rd-semester university assignment that has been refactored to serve as a comprehensive learning tool for students worldwide.
+This repository originated from [Kianis534/Hospital-Management-System-cpp](https://github.com/Kianis534/Hospital-Management-System-cpp). Preserve this attribution and describe local work as adaptation, verification, documentation, and targeted fixes rather than independent authorship of inherited code.
 
+## 📄 License and distribution
 
+No `LICENSE` file is present in this checkout. Before publishing, redistributing, or claiming rights beyond coursework submission, confirm the upstream repository's licensing and permission terms. This project has not been pushed or published from this workspace.
+
+## 📚 Submission materials
+
+The submission package includes:
+
+- [Project report (editable DOCX)](submission/Hospital_Management_System_Report.docx)
+- [Project report (print-ready PDF)](submission/Hospital_Management_System_Report.pdf)
+- [Four-slide presentation](submission/Hospital_Management_System_Presentation.pptx)
+- [Test checklist, presentation notes, and viva preparation](SUBMISSION_MATERIALS.md)
+
+Local CSV, log, and password files under `data/` are intentionally ignored by Git. Use fictional data only and do not commit credentials or real patient information.

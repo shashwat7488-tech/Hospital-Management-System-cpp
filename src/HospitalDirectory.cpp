@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 
 using namespace std;
 
@@ -68,6 +69,14 @@ shared_ptr<Doctor> HospitalDirectory::insertRecord(shared_ptr<Doctor> node, shar
 }
 
 void HospitalDirectory::insertRecord(shared_ptr<Doctor> newDoctor) {
+    if (!newDoctor || newDoctor->id <= 0 || Utility::trim(newDoctor->name).empty() || Utility::trim(newDoctor->speciality).empty()) {
+        cout << "Doctor record is incomplete or has an invalid ID.\n";
+        return;
+    }
+    if (findDoctor(newDoctor->id)) {
+        cout << "A doctor with this ID already exists.\n";
+        return;
+    }
     root = insertRecord(root, newDoctor);
     Logger::getInstance().log("Inserted Doctor ID: " + to_string(newDoctor->id));
 }
@@ -142,14 +151,14 @@ void HospitalDirectory::searchRecord(int id) const {
 
 shared_ptr<Doctor> HospitalDirectory::createDoctorFromInput() {
     auto newDoctor = make_shared<Doctor>();
-    cout << "Enter Doctor Name: ";
-    getline(cin, newDoctor->name);
-    newDoctor->id = Utility::getSafeInt("Enter Doctor ID: ");
-    cout << "Enter Doctor Speciality: ";
-    getline(cin, newDoctor->speciality);
+    newDoctor->name = Utility::getRequiredLine("Enter Doctor Name: ");
+    do {
+        newDoctor->id = Utility::getSafeInt("Enter Doctor ID: ");
+        if (newDoctor->id <= 0) cout << "Doctor ID must be a positive number.\n";
+    } while (newDoctor->id <= 0);
+    newDoctor->speciality = Utility::getRequiredLine("Enter Doctor Speciality: ");
     newDoctor->isSurgeon = Utility::getYesNo("Is the doctor a Surgeon?");
-    cout << "Enter Contact Number: ";
-    getline(cin, newDoctor->contactNumber);
+    newDoctor->contactNumber = Utility::getRequiredLine("Enter Contact Number: ");
     return newDoctor;
 }
 
@@ -207,6 +216,8 @@ void HospitalDirectory::saveRecordsToFile(shared_ptr<Doctor> node, ofstream& fil
 }
 
 void HospitalDirectory::saveRecords(const string& fileName) const {
+    const auto parent = filesystem::path(fileName).parent_path();
+    if (!parent.empty()) filesystem::create_directories(parent);
     ofstream file(fileName);
     if (file.is_open()) {
         saveRecordsToFile(root, file);
@@ -223,6 +234,7 @@ shared_ptr<Doctor> HospitalDirectory::parseRecord(const string& line) {
     getline(ss, doc->name, ',');
     getline(ss, doc->speciality, ',');
     getline(ss, item, ','); doc->isSurgeon = (item == "1");
+    if (doc->id <= 0 || Utility::trim(doc->name).empty() || Utility::trim(doc->speciality).empty()) return nullptr;
     return doc;
 }
 
